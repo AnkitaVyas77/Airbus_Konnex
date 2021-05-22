@@ -1,0 +1,86 @@
+/*!
+ *
+ * clientlibs/variations/utils/js/constants.js
+ *
+ * This file contains a set of constants .
+ *
+ */
+;
+(function(c,d,e,a){c.AIRBUS=c.AIRBUS||{};
+var b=c.AIRBUS;
+b.Variations=b.Variations||{};
+b.Variations.Constants=b.Variations.Constants||{DIALOG_PATH:"/apps/cq/experience-fragments/content/dialogs/createlivecopybytemplate.html/libs/cq/experience-fragments/content/dialogs/createlivecopy/creator"};
+c.AIRBUS.Variations.Constants=b.Variations.Constants
+}(window,Granite.$,window.CQ,document));
+/*!
+ *
+ * clientlibs/variations/utils/js/utils.js
+ *
+ * This file contains a set of utils functions .
+ *
+ *
+ */
+;
+(function(f,g,c,e,h,a){var b=f.AIRBUS||{};
+b.Variations=b.Variations||{};
+function d(j){var l="";
+for(var k=0,m=j.length;
+k<m;
+k++){if((j.charCodeAt(k)>96&&j.charCodeAt(k)<123)||(j.charCodeAt(k)>47&&j.charCodeAt(k)<58)){l+=j[k]
+}else{l+="-"
+}}return l
+}b.Variations.Utils=b.Variations.Utils||{objectToFormData:function(i){const j=new FormData();
+Object.keys(i).forEach(function(k){j.append(k,i[k])
+});
+return j
+},executePostRequests:function(l,i,o){var n="<ul>";
+l.forEach(function(r){var q=Object.assign(r,i);
+var s=b.Variations.Utils.objectToFormData(q);
+g.ajax({method:"POST",url:"/bin/wcmcommand",contentType:false,mimeType:"utf-8",processData:false,data:s,success:function(t){var u=g(t).find("#Path");
+if(u[0]!==undefined){u=u[0].innerText;
+n=n+"<li>"+u+"</li>";
+g.post("/bin/wcmcommand",{cmd:"updateXFContent",path:u,template:r.template})
+}}})
+});
+var j=f.Granite.author;
+if(j!==undefined&&j.page!==undefined&&j.page.path!==undefined){j.DialogFrame.closeDialog();
+j.ui.helpers.clearWait();
+var p=g(f).adaptTo("foundation-ui");
+p.wait();
+setTimeout(function(){f.location.reload(true)
+},5000);
+var k=o.data("foundation-form.internal.currentLoadingMask");
+if(k){k.impl.hide(o[0],k.target);
+o.removeData("foundation-form.internal.currentLoadingMask")
+}}else{var m=new Coral.Dialog().set({id:"airbusXfDialog",header:{innerHTML:"[Airbus] Live Copies created"},content:{innerHTML:"All livecopies have been created successfully"},footer:{innerHTML:'<button id="acceptButton" is="coral-button" variant="primary" coral-close="" class="coral-Button coral-Button--primary" size="M"><coral-button-label>Done</coral-button-label></button>'},variant:"success"});
+m.on("click","#acceptButton",function(){f.location.replace("/aem/experience-fragments.html"+i.srcPath);
+m.hide()
+});
+m.show()
+}},getMultifieldData:function(j){var r=[];
+var n=[];
+for(var k=0;
+k<j.length;
+k++){var l=j[k];
+if(l!==undefined&&l.name!==undefined&&l.name.indexOf("variationTemplateTitles")>-1){var p=l.name.split("/");
+if(p.length>=3){var m=p[1].replace(/\D/g,"");
+var q=p[2];
+if(r[m]==undefined){r[m]={};
+if(q.indexOf("@")<=-1){r[m][q]=l.value
+}}else{if(q.indexOf("@")<=-1){r[m][q]=l.value
+}}if(l.name.indexOf("label")!=-1&&l.value===""){n.push(m)
+}}}}if(n.length>0){var o;
+n.forEach(function(i){o=r[i];
+o.label=d(o.title.toLowerCase())
+})
+}return r
+},createLiveCopies:function(m,k){var n=m.filter(function(o){if(o.name=="srcPath"){return o.value
+}})[0].value;
+var l=m.filter(function(o){if(o.name=="destPath"){return o.value
+}})[0].value;
+var i={_charset_:"utf-8","./jcr:lastModified":"","./jcr:lastModifiedBy":"",cmd:"createLiveCopy","shallow@Delete":"","cq:rolloutConfigs@Delete":"","cq:rolloutConfigs":"/etc/msm/rolloutconfigs/variation-livecopy-rollout-configuration",srcPath:n,destPath:l};
+var j=b.Variations.Utils.getMultifieldData(m);
+b.Variations.Utils.executePostRequests(j,i,k)
+}};
+f.AIRBUS.Variations.Utils=b.Variations.Utils
+}(window,Granite.$,Granite.author,Granite.$(document),window.CQ,document));

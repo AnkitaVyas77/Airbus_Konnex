@@ -1,0 +1,35 @@
+const TIMELINE={init:function(){let that=this;
+window.addEventListener("DOMContentLoaded",function(){that.events()
+});
+window.addEventListener("resize",this.noKeydatePosition)
+},events:function(){this.removeVerticalLine();
+this.noKeydatePosition();
+this.externalLink()
+},noKeydatePosition:function(){let keydate=document.querySelector("span.keydate");
+let timelineList=document.querySelectorAll("ul.description > li");
+let titleContainer=document.querySelectorAll(".title-container");
+if(keydate){let keydateWidth=keydate.offsetWidth+parseInt(getComputedStyle(keydate,null).marginLeft)+parseInt(getComputedStyle(keydate,null).marginRight);
+for(let i=0;
+i<timelineList.length;
+i++){if(!timelineList[i].firstElementChild.className.includes("keydate")){titleContainer[i].style.marginLeft=keydateWidth+5+"px"
+}}}else{for(let i=0;
+i<timelineList.length;
+i++){titleContainer[i].style.marginLeft=47+"px"
+}}},removeVerticalLine:function(){let timelineList=document.querySelectorAll("ul.description");
+if(timelineList){for(let i=0;
+i<timelineList.length;
+i++){if(timelineList[i].children.length<=1){timelineList[i].firstElementChild.firstElementChild.classList.add("oneChild")
+}}}},externalLink:function(){let timelineLinks=document.querySelectorAll("ul.description > li > div > a");
+for(let i=0;
+i<timelineLinks.length;
+i++){timelineLinks[i].addEventListener("click",function(a){if(this.getAttribute("href").startsWith("https")||this.getAttribute("href").startsWith("http")){a.preventDefault();
+window.open(this.href,"_blank")
+}})
+}},loadPolyfills:(function(){if(!String.prototype.startsWith){String.prototype.startsWith=function(a,b){return(this.substr(!b||b<0?0:+b,a.length)===a)
+}
+}if(!String.prototype.includes){String.prototype.includes=function(a,b){if(typeof b!=="number"){b=0
+}if(b+a.length>this.length){return false
+}else{return this.indexOf(a,b)!==-1
+}}
+}})()};
+TIMELINE.init();

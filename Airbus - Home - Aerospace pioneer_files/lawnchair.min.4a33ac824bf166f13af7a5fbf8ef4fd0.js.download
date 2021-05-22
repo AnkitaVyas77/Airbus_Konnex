@@ -1,0 +1,336 @@
+var Lawnchair=function(e,g){if(!(this instanceof Lawnchair)){return new Lawnchair(e,g)
+}if(!JSON){throw"JSON unavailable! Include http://www.json.org/json2.js to fix."
+}if(arguments.length<=2){g=(typeof arguments[0]==="function")?arguments[0]:arguments[1];
+e=(typeof arguments[0]==="function")?{}:arguments[0]||{}
+}else{throw"Incorrect # of ctor args!"
+}this.record=e.record||"record";
+this.name=e.name||"records";
+var b;
+if(e.adapter){if(typeof(e.adapter)==="string"){e.adapter=[e.adapter]
+}for(var d=0,c=e.adapter.length;
+d<c;
+d++){for(var f=Lawnchair.adapters.length-1;
+f>=0;
+f--){if(Lawnchair.adapters[f].adapter===e.adapter[d]){b=Lawnchair.adapters[f].valid()?Lawnchair.adapters[f]:undefined;
+if(b){break
+}}}if(b){break
+}}}else{for(var f=0,a=Lawnchair.adapters.length;
+f<a;
+f++){b=Lawnchair.adapters[f].valid()?Lawnchair.adapters[f]:undefined;
+if(b){break
+}}}if(!b){throw"No valid adapter."
+}for(var d in b){this[d]=b[d]
+}for(var f=0,a=Lawnchair.plugins.length;
+f<a;
+f++){Lawnchair.plugins[f].call(this)
+}this.init(e,g)
+};
+Lawnchair.adapters=[];
+Lawnchair.adapter=function(e,d){d.adapter=e;
+var a="adapter valid init keys save batch get exists all remove nuke".split(" "),c=this.prototype.indexOf;
+for(var b in d){if(c(a,b)===-1){throw"Invalid adapter! Nonstandard method: "+b
+}}Lawnchair.adapters.splice(0,0,d)
+};
+Lawnchair.plugins=[];
+Lawnchair.plugin=function(b){for(var a in b){a==="init"?Lawnchair.plugins.push(b[a]):this.prototype[a]=b[a]
+}};
+Lawnchair.prototype={isArray:Array.isArray||function(a){return Object.prototype.toString.call(a)==="[object Array]"
+},indexOf:function(c,d,b,a){if(c.indexOf){return c.indexOf(d)
+}for(b=0,a=c.length;
+b<a;
+b++){if(c[b]===d){return b
+}}return -1
+},lambda:function(a){return this.fn(this.record,a)
+},fn:function(a,b){return typeof b=="string"?new Function(a,b):b
+},uuid:function(){var a=function(){return(((1+Math.random())*65536)|0).toString(16).substring(1)
+};
+return(a()+a()+"-"+a()+"-"+a()+"-"+a()+"-"+a()+a()+a())
+},each:function(d){var a=this.lambda(d);
+if(this.__results){for(var c=0,b=this.__results.length;
+c<b;
+c++){a.call(this,this.__results[c],c)
+}}else{this.all(function(g){for(var f=0,e=g.length;
+f<e;
+f++){a.call(this,g[f],f)
+}})
+}return this
+}};
+if(typeof module!=="undefined"&&module.exports){module.exports=Lawnchair
+}Lawnchair.adapter("dom",(function(){var b=window.localStorage;
+var a=function(c){return{key:c+"._index_",all:function(){var d=b.getItem(JSON.stringify(this.key));
+if(d){d=JSON.parse(d)
+}if(d===null){b.setItem(JSON.stringify(this.key),JSON.stringify([]))
+}return JSON.parse(b.getItem(JSON.stringify(this.key)))
+},add:function(e){var d=this.all();
+d.push(e);
+b.setItem(JSON.stringify(this.key),JSON.stringify(d))
+},del:function(g){var e=this.all(),h=[];
+for(var f=0,d=e.length;
+f<d;
+f++){if(e[f]!=g){h.push(e[f])
+}}b.setItem(JSON.stringify(this.key),JSON.stringify(h))
+},find:function(g){var e=this.all();
+for(var f=0,d=e.length;
+f<d;
+f++){if(g===e[f]){return f
+}}return false
+}}
+};
+return{valid:function(){return !!b&&function(){var f=true;
+var c=Math.random();
+try{b.setItem(c,c)
+}catch(d){f=false
+}b.removeItem(c);
+return f
+}()
+},init:function(c,d){this.indexer=a(this.name);
+if(d){this.fn(this.name,d).call(this,this)
+}},save:function(d,e){var c=d.key?this.name+"."+d.key:this.name+"."+this.uuid();
+delete d.key;
+b.setItem(c,JSON.stringify(d));
+if(this.indexer.find(c)===false){this.indexer.add(c)
+}d.key=c.slice(this.name.length+1);
+if(e){this.lambda(e).call(this,d)
+}return this
+},batch:function(e,g){var f=[];
+for(var d=0,c=e.length;
+d<c;
+d++){this.save(e[d],function(h){f.push(h)
+})
+}if(g){this.lambda(g).call(this,f)
+}return this
+},keys:function(g){if(g){var c=this.name;
+var f=this.indexer.all();
+var e=[];
+if(Array.prototype.map){e=f.map(function(h){return h.replace(c+".","")
+})
+}else{for(var d in f){e.push(d.replace(c+".",""))
+}}this.fn("keys",g).call(this,e)
+}return this
+},get:function(f,j){if(this.isArray(f)){var g=[];
+for(var e=0,c=f.length;
+e<c;
+e++){var d=this.name+"."+f[e];
+var h=b.getItem(d);
+if(h){h=JSON.parse(h);
+h.key=f[e]
+}g.push(h)
+}if(j){this.lambda(j).call(this,g)
+}}else{var d=this.name+"."+f;
+var h=b.getItem(d);
+if(h){h=JSON.parse(h);
+h.key=f
+}if(j){this.lambda(j).call(this,h)
+}}return this
+},exists:function(d,c){var e=this.indexer.find(this.name+"."+d)===false?false:true;
+this.lambda(c).call(this,e);
+return this
+},all:function(j){var c=this.indexer.all(),g=[],h,e;
+for(var f=0,d=c.length;
+f<d;
+f++){e=c[f];
+h=JSON.parse(b.getItem(e));
+h.key=e.replace(this.name+".","");
+g.push(h)
+}if(j){this.fn(this.name,j).call(this,g)
+}return this
+},remove:function(d,j){var e=this;
+if(this.isArray(d)){var h,c=d.length;
+var g=function(k){e.remove(d[k],function(){if((--c)>0){return
+}if(j){e.lambda(j).call(e)
+}})
+};
+for(h=0;
+h<d.length;
+h++){g(h)
+}return this
+}var f=this.name+"."+((d.key)?d.key:d);
+this.indexer.del(f);
+b.removeItem(f);
+if(j){this.lambda(j).call(this)
+}return this
+},nuke:function(c){this.all(function(f){for(var e=0,d=f.length;
+e<d;
+e++){this.remove(f[e])
+}if(c){this.lambda(c).call(this)
+}});
+return this
+}}
+})());
+Lawnchair.adapter("indexed-db",(function(){function c(k,j){console.error("error in indexed-db adapter!",k,j)
+}var f=3;
+var b=function(){return window.indexedDB||window.webkitIndexedDB||window.mozIndexedDB||window.oIndexedDB||window.msIndexedDB
+};
+var h=function(){return window.IDBTransaction||window.webkitIDBTransaction||window.mozIDBTransaction||window.oIDBTransaction||window.msIDBTransaction
+};
+var d=function(){return window.IDBKeyRange||window.webkitIDBKeyRange||window.mozIDBKeyRange||window.oIDBKeyRange||window.msIDBKeyRange
+};
+var g=function(){return window.IDBDatabaseException||window.webkitIDBDatabaseException||window.mozIDBDatabaseException||window.oIDBDatabaseException||window.msIDBDatabaseException
+};
+var e=function(){return !!window.indexedDB
+};
+var a=(h()&&"READ_WRITE" in h())?h().READ_WRITE:"readwrite";
+return{valid:function(){return !!b()
+},init:function(k,o){this.idb=b();
+this.waiting=[];
+this.useAutoIncrement=e();
+var l=this.idb.open(this.name,f);
+var j=this;
+var i=j.fn(j.name,o);
+if(i&&typeof i!="function"){throw"callback not valid"
+}var n=function(){l.onupgradeneeded=l.onsuccess=l.error=null;
+if(i){return i.call(j,j)
+}};
+var m=function(t,s){try{j.db.deleteObjectStore("teststore")
+}catch(r){}try{j.db.deleteObjectStore(j.record)
+}catch(p){}var q={};
+if(j.useAutoIncrement){q.autoIncrement=true
+}j.db.createObjectStore(j.record,q);
+j.store=true
+};
+l.onupgradeneeded=function(p){j.db=l.result;
+j.transaction=l.transaction;
+m(p.oldVersion,p.newVersion)
+};
+l.onsuccess=function(r){j.db=r.target.result;
+if(j.db.version!=(""+f)){var p=j.db.version;
+var s=j.db.setVersion(""+f);
+s.onsuccess=function(t){var u=s.result;
+s.onsuccess=s.onerror=null;
+m(p,f);
+u.oncomplete=function(){for(var v=0;
+v<j.waiting.length;
+v++){j.waiting[v].call(j)
+}j.waiting=[];
+n()
+}
+};
+s.onerror=function(t){s.onsuccess=s.onerror=null;
+console.error("Failed to create objectstore "+t);
+c(t)
+}
+}else{j.store=true;
+for(var q=0;
+q<j.waiting.length;
+q++){j.waiting[q].call(j)
+}j.waiting=[];
+n()
+}};
+l.onerror=function(p){if(l.errorCode===g().VERSION_ERR){j.idb.deleteDatabase(j.name);
+return j.init(k,o)
+}console.error("Failed to open database")
+}
+},save:function(k,q){var r=this;
+if(!this.store){this.waiting.push(function(){this.save(k,q)
+});
+return
+}var m=(this.isArray(k)?k:[k]).map(function(i){if(!i.key){i.key=r.uuid()
+}return i
+});
+var n=function(i){if(q){r.lambda(q).call(r,r.isArray(k)?m:m[0])
+}};
+var s=this.db.transaction(this.record,a);
+var p=s.objectStore(this.record);
+for(var l=0;
+l<m.length;
+l++){var j=m[l];
+p.put(j,j.key)
+}p.transaction.oncomplete=n;
+p.transaction.onabort=c;
+return this
+},batch:function(i,j){return this.save(i,j)
+},get:function(r,s){if(!this.store){this.waiting.push(function(){this.get(r,s)
+});
+return
+}var u=this;
+var p=function(l){var i=l.target.result;
+if(s){if(i){i.key=r
+}u.lambda(s).call(u,i)
+}};
+if(!this.isArray(r)){var q=this.db.transaction(this.record).objectStore(this.record).get(r);
+q.onsuccess=function(i){q.onsuccess=q.onerror=null;
+p(i)
+};
+q.onerror=function(i){q.onsuccess=q.onerror=null;
+c(i)
+}
+}else{var o=[],m=r.length,t=r;
+var j=function(l){u.get(t[l],function(i){o[l]=i;
+if((--m)>0){return
+}if(s){u.lambda(s).call(u,o)
+}})
+};
+for(var n=0,k=t.length;
+n<k;
+n++){j(n)
+}}return this
+},exists:function(j,l){if(!this.store){this.waiting.push(function(){this.exists(j,l)
+});
+return
+}var i=this;
+var k=this.db.transaction(i.record).objectStore(this.record).openCursor(d().only(j));
+k.onsuccess=function(n){k.onsuccess=k.onerror=null;
+var m;
+i.lambda(l).call(i,n.target.result!==null&&n.target.result!==m)
+};
+k.onerror=function(m){k.onsuccess=k.onerror=null;
+c(m)
+};
+return this
+},all:function(m){if(!this.store){this.waiting.push(function(){this.all(m)
+});
+return
+}var i=this.fn(this.name,m)||undefined;
+var j=this;
+var k=this.db.transaction(this.record).objectStore(this.record);
+var l=[];
+k.openCursor().onsuccess=function(n){var o=n.target.result;
+if(o){l.push(o.value);
+o["continue"]()
+}else{if(i){i.call(j,l)
+}}};
+return this
+},keys:function(m){if(!this.store){this.waiting.push(function(){this.keys(m)
+});
+return
+}var i=this.fn(this.name,m)||undefined;
+var j=this;
+var k=this.db.transaction(this.record).objectStore(this.record);
+var l=[];
+k.openCursor().onsuccess=function(n){var o=n.target.result;
+if(o){l.push(o.key);
+o["continue"]()
+}else{if(i){i.call(j,l)
+}}};
+return this
+},remove:function(k,q){if(!this.store){this.waiting.push(function(){this.remove(k,q)
+});
+return
+}var l=this;
+var j=k;
+if(!this.isArray(k)){j=[k]
+}var p=function(){if(q){l.lambda(q).call(l)
+}};
+var o=this.db.transaction(this.record,a).objectStore(this.record);
+var n=k.key?k.key:k;
+for(var m=0;
+m<j.length;
+m++){var n=j[m].key?j[m].key:j[m];
+o["delete"](n)
+}o.transaction.oncomplete=p;
+o.transaction.onabort=c;
+return this
+},nuke:function(m){if(!this.store){this.waiting.push(function(){this.nuke(m)
+});
+return
+}var i=this,l=m?function(){i.lambda(m).call(i)
+}:function(){};
+try{var j=this.db.transaction(this.record,a).objectStore(this.record);
+j.clear();
+j.transaction.oncomplete=l;
+j.transaction.onabort=c
+}catch(k){if(k.name=="NotFoundError"){l()
+}else{c(k)
+}}return this
+}}
+})());

@@ -1,0 +1,26 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  
+// Review the commented lines. Insert real values for the placeholders 
+
+var _Mfb_ud = { pagename : _satellite.getVar('DDLR - page.pageName - p31'), 
+pageurl : _satellite.getVar('DDLI - page.pageUrl - p32'),
+langue : _satellite.getVar('DDLR - page.langue - p33'),
+//previouspage : _satellite.getVar('page.previousPage'),
+primarycategory : _satellite.getVar('DDLI - PagePrimaryCategory - p35'),
+pagecategory1 : _satellite.getVar('	DDLI - PageCategory1 - p36'),
+pagecategory2 : _satellite.getVar('DDLI - PageCategory2 - p37'),
+pagecategory3 : _satellite.getVar('DDLR - page.pageCategory3 - p38'),
+pagecategory4 : _satellite.getVar('DDLR - page.pageCategory4 - p39'),
+userprofile : ''
+};
+
+
+var regEx = new RegExp('newsroom'); var newsroomURLtest = regEx.test(location.pathname);
+if(newsroomURLtest) {
+	_Mfb_ud.newsroom = 1 ;
+} else {
+	_Mfb_ud.newsroom = '' ;
+}
+(function() { var mfb = document.createElement('script'); mfb.type = 'text/javascript'; mfb.charset = 'UTF-8'; mfb.async = true; mfb.id = 'MFBActor'; mfb.src = 'https://actorssl-5637.kxcdn.com/actor/616708FA750C4E388A970EAB41BAF903/action'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mfb, s); })();
+
+});

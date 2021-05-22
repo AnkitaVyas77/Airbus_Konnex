@@ -1,0 +1,42 @@
+/*!
+ *
+ * clientlibs/variations/overlaySubmitForm/js/form.js
+ * 
+ * Overlay of submit form :  granite\ui\components\coral\foundation\clientlibs\foundation\js\form\form.js
+ *
+ * This file contains the code the remove the by default submit
+ *
+ *
+ */
+(function(b,e,g,d){var h=d.UI.Foundation.Utils.everyReverse;
+var c=g(e).adaptTo("foundation-registry");
+var f=g(e).adaptTo("foundation-ui");
+function a(j){var i=j.data("foundation-form.internal.currentLoadingMask");
+if(i){i.impl.hide(j[0],i.target);
+j.removeData("foundation-form.internal.currentLoadingMask")
+}}c.register("foundation.adapters",{type:"foundation-form",selector:"form.foundation-form",adapter:function(j){var k=g(j);
+var i=function(m){var l=m.adaptTo("foundation-field");
+if(l&&l.reset){l.reset()
+}};
+return{submitAsync:function(){var o=k.attr("enctype");
+var r=k.attr("method")||"get";
+var n=k.attr("action");
+var m=r.toLowerCase()==="post";
+if(m&&o==="multipart/form-data"){var p=new FormData(k[0]);
+return g.ajax({method:r,url:n,contentType:false,mimeType:o,processData:false,data:p})
+}var q=k.serializeArray();
+var l=q.filter(function(s){return s.name=="cmd"&&s.value=="createLiveCopyByTemplate"
+});
+if(l!==undefined&&l[0]!==undefined&&l[0].value!==undefined&&l[0].value=="createLiveCopyByTemplate"){a(k);
+g(j).trigger("airbus-xf-submit");
+return
+}return g.ajax({method:r,url:n,contentType:o,data:k.serialize(),cache:false})
+},reset:function(l){if(!l){j.reset()
+}k.find(".foundation-field-editable").each(function(){var m=g(this);
+i(m.find(".foundation-field-readonly"));
+i(m.find(".foundation-field-edit"))
+})
+},isDirty:function(){return dirtyWeakMap.get(j)===true
+}}
+}})
+})(document,window,Granite.$,Granite);

@@ -1,0 +1,3 @@
+var Stage={config:{s7video:{streaming:{onplay:function(){if($(this).data("autoplay")===true||$(this).data("loop")===true){$(this).find('.s7mutebutton[selected="false"]').trigger("click")
+}}},progressive:{progressivebitrate:"7500",playback:"native",onplay:function(){if($(this).data("autoplay")===true||$(this).data("loop")===true){$(this).find('.s7mutebutton[selected="false"]').trigger("click")
+}}}}}};

@@ -1,0 +1,11 @@
+var Stagevideo={config:{s7video:{streaming:{onplay:function(){if($(this).data("autoplay")===true||$(this).data("loop")===true){$(this).find('.s7mutebutton[selected="false"]').trigger("click")
+}}},progressive:{progressivebitrate:"7500",playback:"native",onplay:function(){if($(this).data("autoplay")===true||$(this).data("loop")===true){$(this).find('.s7mutebutton[selected="false"]').trigger("click")
+}}}}}};
+var Stagevideo={init:function(){var c=document.querySelectorAll(".c-stage-video-js");
+var b=[];
+for(var a=0;
+a<c.length;
+a++){b[a]=videojs(c[a]);
+b[a].ready(function(){this.autoplay("muted")
+})
+}}};

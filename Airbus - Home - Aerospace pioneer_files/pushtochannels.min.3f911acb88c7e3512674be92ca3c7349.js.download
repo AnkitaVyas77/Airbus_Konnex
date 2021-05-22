@@ -1,0 +1,25 @@
+/*!
+ *
+ * clientlibs/pushtochannels/js/pushCommand.js
+ *
+ */
+(function(c,e,b){var d=e(c).adaptTo("foundation-ui");
+e(document).on("click",".cq-siteadmi-actions-channel-activator",function(g){var f=[b.page.path];
+a(JSON.stringify(f))
+});
+e(c).adaptTo("foundation-registry").register("foundation.collection.action.action",{name:"airbus.push.to.channel",handler:function(g,i,f,l,h){var j=e(c).adaptTo("foundation-ui");
+j.wait();
+var k=h.map(function(m){var n=e(m);
+return n.data("foundationCollectionItemId")
+});
+if(!k.length){return
+}a(JSON.stringify(k))
+}});
+function a(f){e.ajax({url:"/bin/wcmcommand",type:"POST",data:{_charset_:"utf-8",cmd:"pushToChannel",fragments:f}}).always(function(){d.clearWait()
+}).done(function(h){var g=e(h).find("#Message")[0].innerText;
+d.alert("Push to channel(s)",g,"success")
+}).fail(function(i){var h=Granite.I18n.get("Error");
+var g="Error when pushing the fragments";
+d.alert(h,g,"error")
+})
+}}(window,Granite.$,Granite.author));

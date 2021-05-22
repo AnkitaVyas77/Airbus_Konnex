@@ -1,0 +1,25 @@
+/*!
+ *
+ * clientlibs/variations/events/js/onCreateByTemplate.js
+ *
+ * This file contains the code for handling the click onto create by template dialog.
+ *
+ * This code will do the following:
+ *
+ *	- handle POST execution and trigger several POST to create the livecopies.
+ *	- execute for each POST a second POST to update the newly created LC's content following
+ *	  the template polocies.
+ *
+ *
+ */
+(function(a,e,f,d,c,b){f(a).on("airbus-xf-submit","form.foundation-form",function(j){var h=f(this);
+if(h.data("foundationFormAjax")){j.preventDefault();
+if(!h.data("foundationFormDisable")){var i=new Coral.Wait().set({size:"L"});
+var k=h.serializeArray();
+var g=k.filter(function(l){return l.name=="cmd"&&l.value=="createLiveCopyByTemplate"
+})[0].value;
+if(g!==undefined&&g=="createLiveCopyByTemplate"){i.show();
+b.createLiveCopies(k,h);
+i.hide()
+}}}})
+})(document,window,Granite.$,Granite,window.AIRBUS.Variations.Constants,window.AIRBUS.Variations.Utils);

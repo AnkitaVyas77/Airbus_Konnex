@@ -1,0 +1,126 @@
+window.CUI=window.CUI||{};
+(function(g){var f={"⇧":16,shift:16,"⌥":18,alt:18,option:18,"⌃":17,ctrl:17,control:17,"⌘":91,cmd:91,command:91,meta:91};
+var e={16:true,17:true,18:true,91:true};
+var i=["shiftKey","ctrlKey","altKey","metaKey"];
+var n={"96":"48","97":"49","98":"50","99":"51","100":"52","101":"53","102":"54","103":"55","104":"56","105":"57"};
+var l={backspace:"8",tab:"9","return":"13",pause:"19",capslock:"20",esc:"27",escape:"27",space:"32",pageup:"33",pagedown:"34",end:"35",home:"36",left:"37",up:"38",right:"39",down:"40",insert:"45",del:"46","delete":"46",";":"186","=":"187","*":"106","+":"107","-":"189",".":"190",period:"190","/":"191",f1:"112",f2:"113",f3:"114",f4:"115",f5:"116",f6:"117",f7:"118",f8:"119",f9:"120",f10:"121",f11:"122",f12:"123",f13:"124",f14:"125",f15:"126",f16:"127",f17:"128",f18:"129",f19:"130",numlock:"144",scroll:"145",",":"188","`":"192","[":"219","\\":"220","]":"221","'":"222"};
+var a=/(.*?)(\..+)$/;
+var d=g(window);
+var b={INPUT:true,SELECT:true,TEXTAREA:true};
+function k(p){var q=p.target;
+var o=q.tagName;
+return !q.isContentEditable&&!b[o]
+}function h(o){o=o.toLowerCase();
+var p=l[o]||f[o];
+if(!p&&o.length>1){throw new Error("CUI.Keys: Key "+o+" not recognized")
+}return p||o.toUpperCase().charCodeAt(0)
+}function j(o){return n[o]||o
+}function m(o){return o.toString().split("+").map(h).sort().join("+")
+}function c(H,q){q=q||{};
+if(typeof H==="undefined"){throw new Error("CUI.Keys: Cannot create a combo handler for "+H)
+}var G=g(H);
+var p=q.context;
+var y=q.filter||k;
+var s=q.preventDefault||false;
+var t=q.stopPropagation||false;
+var A;
+var o;
+var z;
+function x(J){var I=j(J.which);
+if(e[I]){return
+}if(o.indexOf(I)===-1){o.push(I);
+C(J)
+}v.call(this,J);
+if(J.metaKey){E()
+}}function C(K){var I=[];
+for(var J=0;
+J<i.length;
+J++){var L=i[J];
+if(K[L]){I.push(f[L.slice(0,-3)])
+}}z=o.concat(I).sort().join("+")
+}function r(K){var J=j(K.which);
+if(e[J]){E();
+return
+}var I=o.indexOf(J);
+if(I!==-1){o.splice(I,1);
+C(K);
+v.call(this,K)
+}}function v(K){if(!z){return
+}if(!y(K)){return
+}var N=(K.target||K.srcElement);
+var J=A[z];
+if(J&&J.length){for(var I=0;
+I<J.length;
+I++){var M=J[I];
+if(M.selector){var L=M.needsContext?jQuery(M.selector,this).index(N)>=0:jQuery.find(M.selector,this,null,[N]).length;
+if(!L){continue
+}}if(typeof M.data!==undefined){K.data=M.data
+}M.listener.call(p||this,K)
+}if(s){K.preventDefault()
+}if(t){K.stopPropagation()
+}}}function w(P,I,N,M){if(typeof P==="object"){if(typeof I!=="string"){N=N||I;
+I=undefined
+}for(var O in P){this.on(O,I,N,P[O])
+}return this
+}if(typeof N==="undefined"&&typeof M==="undefined"){M=I;
+N=I=undefined
+}else{if(typeof M==="undefined"){if(typeof I==="string"){M=N;
+N=undefined
+}else{M=N;
+N=I;
+I=undefined
+}}}if(typeof M!=="function"){throw new Error("CUI.Keys: Cannot add listener of type "+(typeof M))
+}var K;
+var L=a.exec(P);
+if(L){P=L[1];
+K=L[2]
+}P=m(P);
+var J=A[P]=A[P]||[];
+J.push({needsContext:I?jQuery.expr.match.needsContext.test(M.selector):false,selector:I,listener:M,data:N,namespace:K});
+return this
+}function u(M,L,I,N){var J;
+var K=A[M];
+if(K&&K.length){if(typeof I==="undefined"&&typeof N==="undefined"&&typeof L==="undefined"){K.length=0
+}else{if(typeof N==="undefined"){for(J=0;
+J<K.length;
+J++){if(K[J].selector===I&&K[J].namespace===L){K.splice(J,1);
+J--
+}}}else{for(J=0;
+J<K.length;
+J++){if(K[J].listener===N&&K[J].selector===I&&K[J].namespace===L){K.splice(J,1);
+J--
+}}}}}}function F(N,I,M){if(typeof M==="undefined"){M=I;
+I=undefined
+}var K;
+var J;
+var L=a.exec(N);
+if(L){N=L[1];
+J=L[2]
+}if(N===""&&typeof J!=="undefined"){for(N in A){u(N,J,I,M)
+}return this
+}N=m(N);
+u(N,J,I,M);
+return this
+}function E(){o=[];
+z="";
+return this
+}function B(){o=[];
+z="";
+A={};
+G.on("keydown",x);
+G.on("keyup",r);
+d.on("focus",E);
+return this
+}function D(){A=null;
+o=null;
+z=null;
+G.off("keydown",x);
+G.off("keyup",r);
+d.off("focus",E);
+return this
+}if(this instanceof c){B()
+}return{on:w,off:F,reset:E,init:B,destroy:D}
+}CUI.Keys=c;
+CUI.Keys.filterInputs=k;
+CUI.keys=new CUI.Keys(document.documentElement,{stopPropagation:true,preventDefault:true})
+}(Granite.$));
